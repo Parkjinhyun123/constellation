@@ -4,65 +4,49 @@ import { useRef, useLayoutEffect } from "react";
 import { transition } from "./settings";
 import { Canvas, useThree } from "@react-three/fiber";
 import { useSmoothTransform } from "./use-smooth-transform";
-import sagittariusConstellation from "./img/sagittariusconstellation.png";
-import { useLoader } from "@react-three/fiber";
+import { useLoader } from "@react-three/fiber/dist/react-three-fiber.cjs";
 import { TextureLoader } from "three";
-import sagittarius from "./img/sagittarius.png";
+import sagittariusconstellationImg from "./img/sagittariusconstellation.png";
 
-export function SagittariusImage() {
-  const sagittariusTexture = useLoader(TextureLoader, sagittarius);
+export function ConstellationImage() {
+  const imagePath = sagittariusconstellationImg;
+  const texture = useLoader(TextureLoader, imagePath);
 
   return (
-    <mesh position={[0, 0, 0]}>
-      <planeGeometry args={[0.01, 0.01]} />
-      <meshBasicMaterial map={sagittariusTexture} transparent={true} />
+    <mesh>
+      <planeGeometry attach="geometry" args={[3, 3]} />
+      <meshBasicMaterial attach="material" map={texture} transparent={true} />
     </mesh>
   );
 }
 
-export function SagittariusConstellationImage() {
-  const sagittariusConstellationTexture = useLoader(
-    TextureLoader,
-    sagittariusConstellation
-  );
-
-  return (
-    <mesh position={[0, 0, 0]}>
-      <planeGeometry args={[3, 3]} />
-      <meshBasicMaterial
-        map={sagittariusConstellationTexture}
-        transparent={true}
-      />
-    </mesh>
-  );
-}
-
-export function Shapes({ mouseX, mouseY }) {
+export function Shapes({ isHover, isPress, mouseX, mouseY }) {
   const lightRotateX = useSmoothTransform(mouseY, spring, mouseToLightRotation);
   const lightRotateY = useSmoothTransform(mouseX, spring, mouseToLightRotation);
 
   return (
-    <Canvas shadows dpr={[1, 2]} resize={{ scroll: false, offsetSize: true }}>
-      <Camera mouseX={mouseX} mouseY={mouseY} />
-      <MotionConfig transition={transition}>
-        <motion.group
-          center={[0, 0, 0]}
-          rotation={[lightRotateX, lightRotateY, 0]}
-        >
-          <Lights />
-        </motion.group>
-        <motion.group
-          initial={false}
-          animate="visible"
-          dispose={null}
-          variants={{
-            visible: { opacity: 1 }, // 항상 보이도록 설정
-          }}
-        >
-          <SagittariusConstellationImage />
-        </motion.group>
-      </MotionConfig>
-    </Canvas>
+    <>
+      <Canvas shadows dpr={[1, 2]} resize={{ scroll: false, offsetSize: true }}>
+        <ConstellationImage />
+        <Camera mouseX={mouseX} mouseY={mouseY} />
+        <MotionConfig transition={transition}>
+          <motion.group
+            center={[0, 0, 0]}
+            rotation={[lightRotateX, lightRotateY, 0]}
+          >
+            <Lights />
+          </motion.group>
+          <motion.group
+            initial={false}
+            animate={isHover ? "hover" : "rest"}
+            dispose={null}
+            variants={{
+              hover: { z: isPress ? -0.9 : 0 },
+            }}
+          ></motion.group>
+        </MotionConfig>
+      </Canvas>
+    </>
   );
 }
 

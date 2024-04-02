@@ -1,17 +1,17 @@
 import "./style.css";
 import { Suspense, useState } from "react";
 import { motion, MotionConfig, useMotionValue } from "framer-motion";
-import { SagittariusImage, Shapes } from "./Shapes";
+import { Shapes } from "./Shapes";
 import { transition } from "./settings";
 import useMeasure from "react-use-measure";
+import CustomModal from "./Modal";
 import sagittarius from "./img/sagittarius.png";
-import { useLoader } from "@react-three/fiber";
-import { TextureLoader } from "three";
 
 export default function App() {
   const [ref, bounds] = useMeasure({ scroll: false });
   const [isHover, setIsHover] = useState(false);
   const [isPress, setIsPress] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
@@ -22,7 +22,7 @@ export default function App() {
 
   return (
     <MotionConfig transition={transition}>
-      <motion.div
+      <motion.button
         ref={ref}
         initial={false}
         animate={isHover ? "hover" : "rest"}
@@ -31,7 +31,6 @@ export default function App() {
           rest: { scale: 1 },
           hover: { scale: 1.5 },
           press: { scale: 1.4 },
-          visible: { opacity: 1 }, // 올바른 위치로 이동됨
         }}
         onHoverStart={() => {
           resetMousePosition();
@@ -48,8 +47,8 @@ export default function App() {
           mouseX.set(e.clientX - bounds.x - bounds.width / 2);
           mouseY.set(e.clientY - bounds.y - bounds.height / 2);
         }}
+        onClick={() => setModalOpen(true)}
       >
-        <img src={sagittarius} alt="sagittarius" className="Constellation" />
         <motion.div
           className="shapes"
           variants={{
@@ -68,8 +67,9 @@ export default function App() {
             </Suspense>
           </div>
         </motion.div>
-      </motion.div>
-      <SagittariusImage />
+        <img src={sagittarius} alt="sagittarius" className="Star" />
+      </motion.button>
+      <CustomModal open={modalOpen} onClose={() => setModalOpen(false)} />
     </MotionConfig>
   );
 }
